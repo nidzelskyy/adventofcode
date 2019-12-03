@@ -1,4 +1,4 @@
-defmodule Day1 do
+defmodule Aoc2019Day1 do
   @moduledoc false
 
   def run() do
@@ -18,7 +18,7 @@ defmodule Day1 do
   end
 
   def parse_file() do
-    File.stream!("inputs/input.txt")
+    File.stream!("inputs/2019/input.txt")
     |> Enum.map(fn x ->
       Integer.parse(x, 10)
       |> (fn {i, _} -> div(i, 3) - 2 end).()

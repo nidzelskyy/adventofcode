@@ -1,4 +1,4 @@
-defmodule Day2 do
+defmodule Aoc2019Day2 do
   @moduledoc false
 
   def run() do
@@ -13,9 +13,7 @@ defmodule Day2 do
     #    list = [2,4,4,5,99,0]
     #    list = [1,1,1,4,99,5,6,0,99]
     list =
-      File.read!("inputs/input2.txt")
-      |> String.split(~r/\,/)
-      |> Enum.map(fn x -> Integer.parse(x, 10) |> (fn {i, _} -> i end).() end)
+      parse_file()
       |> update_position(1, 12)
       |> update_position(2, 2)
 
@@ -23,10 +21,7 @@ defmodule Day2 do
   end
 
   def part_two() do
-    list =
-      File.read!("inputs/input2.txt")
-      |> String.split(~r/\,/)
-      |> Enum.map(fn x -> Integer.parse(x, 10) |> (fn {i, _} -> i end).() end)
+    list = parse_file()
 
       res =
         for(noun <- 0..99, verb <- 0..99, do: %{noun: noun, verb: verb})
@@ -42,6 +37,12 @@ defmodule Day2 do
       |> update_position(2, verb)
 
     operation(Enum.slice(prepared_list, 0, 4), 1, prepared_list)
+  end
+
+  def parse_file() do
+    File.read!("inputs/2019/input2.txt")
+    |> String.split(~r/\,/)
+    |> Enum.map(fn x -> Integer.parse(x, 10) |> (fn {i, _} -> i end).() end)
   end
 
   def operation([1, inp_1, inp_2, outp] = command, iteration, list) do  #add

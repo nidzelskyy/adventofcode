@@ -1,4 +1,4 @@
-defmodule Day3 do
+defmodule Aoc2019Day3 do
   @moduledoc false
 
   def run() do
@@ -33,7 +33,7 @@ defmodule Day3 do
   end
 
   def parse_file() do
-    File.stream!("inputs/input3.txt")
+    File.stream!("inputs/2019/input3.txt")
     |> Enum.map(&String.trim/1)
     |> Enum.map(& String.split(&1, ","))
   end
