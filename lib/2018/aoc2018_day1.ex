@@ -8,7 +8,8 @@ defmodule Aoc2018Day1 do
   end
 
   def part_one() do
-    :one
+    parse_file()
+    |> Enum.sum()
   end
 
   def part_two() do
@@ -16,6 +17,10 @@ defmodule Aoc2018Day1 do
   end
 
   def parse_file() do
-    :parse_file
+    File.stream!("inputs/2018/input1.txt")
+    |> Enum.map(fn x ->
+      Integer.parse(x, 10)
+      |> (fn {i, _} -> i end).()
+    end)
   end
 end
