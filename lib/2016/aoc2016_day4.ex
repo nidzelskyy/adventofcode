@@ -4,6 +4,7 @@ defmodule Aoc2016Day4 do
   def run() do
     IO.inspect("First part answer: #{inspect part_one()}")
     IO.inspect("Second part answer: #{inspect part_two()}")
+    :ok
   end
 
   def part_one() do
