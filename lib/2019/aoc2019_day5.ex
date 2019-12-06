@@ -18,7 +18,10 @@ defmodule Aoc2019Day5 do
   end
 
   def part_two() do
-    :second
+    program_type = get_program_type()
+    input = parse_file()
+    run_program(program_type, input)
+    |> Enum.at(1)
   end
 
   def parse_file() do
@@ -55,6 +58,9 @@ defmodule Aoc2019Day5 do
     params = read_params(command_type, position, program)
     {message, new_program} = execute_command(command_type, modes, params, program, position)
     program_loop(message, position + length(params) + 1, new_program)
+  end
+  def program_loop({:jump, new_position}, _position, program) do
+    program_loop(:next, new_position, program)
   end
   def program_loop(:finish, _position, program) do
     program
@@ -93,6 +99,18 @@ defmodule Aoc2019Day5 do
   def read_params(:multi, position, program) do
     [Enum.at(program, position + 1), Enum.at(program, position + 2), Enum.at(program, position + 3)]
   end
+  def read_params(:jump_true, position, program) do
+    [Enum.at(program, position + 1), Enum.at(program, position + 2)]
+  end
+  def read_params(:jump_false, position, program) do
+    [Enum.at(program, position + 1), Enum.at(program, position + 2)]
+  end
+  def read_params(:less_than, position, program) do
+    [Enum.at(program, position + 1), Enum.at(program, position + 2), Enum.at(program, position + 3)]
+  end
+  def read_params(:equals, position, program) do
+    [Enum.at(program, position + 1), Enum.at(program, position + 2), Enum.at(program, position + 3)]
+  end
   def read_params(:read, position, program) do
     [Enum.at(program, position + 1)]
   end
@@ -115,6 +133,48 @@ defmodule Aoc2019Day5 do
     second = get_params_value_by_mode(Enum.at(mode, 1), Enum.at(params, 1), program)
     res = first * second
     new_program = set_param_value_by_mode(Enum.at(mode, 2), Enum.at(params, 2), res, program, command_position + length(params) - 1)
+    {:next, new_program}
+  end
+  def execute_command(:jump_true, mode, params, program, command_position) do
+    first = get_params_value_by_mode(Enum.at(mode, 0), Enum.at(params, 0), program)
+    second = get_params_value_by_mode(Enum.at(mode, 1), Enum.at(params, 1), program)
+    case first != 0 do
+      true -> {{:jump, second}, program}
+      false -> {:next, program}
+    end
+  end
+  def execute_command(:jump_false, mode, params, program, command_position) do
+    first = get_params_value_by_mode(Enum.at(mode, 0), Enum.at(params, 0), program)
+    second = get_params_value_by_mode(Enum.at(mode, 1), Enum.at(params, 1), program)
+    case first == 0 do
+      true -> {{:jump, second}, program}
+      false -> {:next, program}
+    end
+  end
+  def execute_command(:less_than, mode, params, program, command_position) do
+    first  = get_params_value_by_mode(Enum.at(mode, 0), Enum.at(params, 0), program)
+    second = get_params_value_by_mode(Enum.at(mode, 1), Enum.at(params, 1), program)
+    out    = get_params_value_by_mode(Enum.at(mode, 2), Enum.at(params, 2), program)
+
+    value =
+      case first < second do
+        true -> 1
+        false -> 0
+      end
+    new_program = set_param_value_by_mode(Enum.at(mode, 2), Enum.at(params, 2), value, program, command_position + length(params) - 1)
+    {:next, new_program}
+  end
+  def execute_command(:equals, mode, params, program, command_position) do
+    first = get_params_value_by_mode(Enum.at(mode, 0), Enum.at(params, 0), program)
+    second = get_params_value_by_mode(Enum.at(mode, 1), Enum.at(params, 1), program)
+    out = get_params_value_by_mode(Enum.at(mode, 2), Enum.at(params, 2), program)
+
+    value =
+      case first == second do
+        true -> 1
+        false -> 0
+      end
+    new_program = set_param_value_by_mode(Enum.at(mode, 2), Enum.at(params, 2), value, program, command_position + length(params) - 1)
     {:next, new_program}
   end
   def execute_command(:read, mode, params, program, command_position) do
