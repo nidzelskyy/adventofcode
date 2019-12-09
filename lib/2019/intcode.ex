@@ -3,6 +3,7 @@ defmodule Intcode do
 
   @position_mode 0
   @immediate_mode 1
+  @relative_mode 2
 
   @manual_interactive 0
   @automatic_interactive 1
@@ -14,6 +15,7 @@ defmodule Intcode do
   def run(input, interactive_mode) do
     IntcodeReaderWriter.init(interactive_mode)
     create_continue_loop_agent()
+    create_adjust_base_agent()
     program_loop(:start, input)
   end
 
@@ -69,7 +71,26 @@ defmodule Intcode do
     Agent.get(:continue_loop, fn state -> state end)
   end
 
+  def create_adjust_base_agent() do
+    case Agent.start(fn -> 0 end, name: :adjust_agent) do
+      {:ok, pid} ->
+        {:ok, pid}
+      {:error, {:already_started, pid}} ->
+        set_continue_loop_agent(0)
+        {:ok, pid}
+    end
+  end
+
+  def set_adjust_base_agent(id) do
+    Agent.update(:adjust_agent, fn state -> id end)
+  end
+
+  def get_adjust_base_state() do
+    Agent.get(:adjust_agent, fn state -> state end)
+  end
+
   def program_loop(:start, program) do
+    IO.inspect("start")
     {command_type, modes} = read_command(0, program)
     params = read_params(command_type, 0, program)
     {message, new_program} = execute_command(command_type, modes, params, program, 0)
@@ -129,6 +150,7 @@ defmodule Intcode do
       6 -> :jump_false
       7 -> :less_than
       8 -> :equals
+      9 -> :adjusts_base
       99 -> :exit
     end
   end
@@ -158,6 +180,9 @@ defmodule Intcode do
     [Enum.at(program, position + 1)]
   end
   def read_params(:write, position, program) do
+    [Enum.at(program, position + 1)]
+  end
+  def read_params(:adjusts_base, position, program) do
     [Enum.at(program, position + 1)]
   end
   def read_params(:exit, _position, _program) do
@@ -224,7 +249,7 @@ defmodule Intcode do
     {:next, new_program}
   end
   def execute_command(:read, mode, params, program, command_position) do
-    Enum.at(program, Enum.at(params, 0))
+    get_params_value_by_mode(Enum.at(mode, 0), Enum.at(params, 0), program)
     |> IntcodeReaderWriter.write()
 
     case get_loop_state() do
@@ -239,19 +264,57 @@ defmodule Intcode do
     new_program = set_param_value_by_mode(mode, param, new_value, program, command_position + length(params) - 1)
     {:next, new_program}
   end
-
+  def execute_command(:adjusts_base, [mode |_], [param | _] = params, program, command_position) do
+    current_base = get_adjust_base_state()
+    value = get_params_value_by_mode(mode, param, program)
+    set_adjust_base_agent(current_base + value)
+    {:next, program}
+  end
   def execute_command(:exit, _mode, _params, program, command_position) do
     {:finish, program}
   end
-  def execute_command(_connamd, _mode, _params, program, command_position) do
+  def execute_command(_command, _mode, _params, program, command_position) do
     IO.inspect("Unknown command")
     {:next, program}
   end
 
-  def get_params_value_by_mode(@position_mode, param, program), do: Enum.at(program, param)
+  def get_params_value_by_mode(@position_mode, param, program), do: Enum.at(program, param, 0)
   def get_params_value_by_mode(@immediate_mode, param, _program), do: param
+  def get_params_value_by_mode(@relative_mode, param, program), do: Enum.at(program, param + get_adjust_base_state(), 0)
 
-  def set_param_value_by_mode(@position_mode, position, value, program, _command_position), do: List.replace_at(program, position, value)
-  def set_param_value_by_mode(@immediate_mode, _position, value, program, command_position), do: List.replace_at(program, command_position, value)
+  def set_param_value_by_mode(@position_mode, position, value, program, _command_position) do
+    count = length(program)
+    program =
+      if(count < position) do
+        zero_list = List.duplicate(0, position - count + 5)
+        program ++ zero_list
+      else
+        program
+      end
+    List.replace_at(program, position, value)
+  end
+  def set_param_value_by_mode(@immediate_mode, _position, value, program, command_position) do
+    count = length(program)
+    program =
+      if(count < command_position) do
+        zero_list = List.duplicate(0, command_position - count + 5)
+        program ++ zero_list
+      else
+        program
+      end
+    List.replace_at(program, command_position, value)
+  end
+  def set_param_value_by_mode(@relative_mode, position, value, program, _command_position) do
+    count = length(program)
+    relative_position = position + get_adjust_base_state()
+    program =
+      if(count < relative_position) do
+        zero_list = List.duplicate(0, relative_position - count + 5)
+        program ++ zero_list
+      else
+        program
+      end
+    List.replace_at(program, position + get_adjust_base_state(), value)
+  end
 
 end

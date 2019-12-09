@@ -6,16 +6,22 @@ defmodule Aoc2019Day9 do
     IO.inspect("Second part answer: #{inspect part_two()}")
     :ok
   end
-
+  #Aoc2019Day9.part_one
   def part_one() do
-    :one
+    parse_file()
+    |> Intcode.run()
+    "See the result in console!"
   end
 
   def part_two() do
-    :second
+    parse_file()
+    |> Intcode.run()
+    "See the result in console!"
   end
 
   def parse_file() do
-    :parse_file
+    File.read!("inputs/2019/input9.txt")
+    |> String.split(~r/\,/)
+    |> Enum.map(fn x -> Integer.parse(x, 10) |> (fn {i, _} -> i end).() end)
   end
 end
