@@ -13,7 +13,7 @@ defmodule Aoc do
 
   """
   def create_template do
-    for(year <- 2015..2019, day <- 1..25, do: %{year: year, day: day, file: "aoc#{year}_day#{day}.ex", path: "lib/#{year}/"})
+    for(year <- 2015..2020, day <- 1..25, do: %{year: year, day: day, file: "aoc#{year}_day#{day}.ex", path: "lib/#{year}/"})
     |> Enum.map(fn x ->
       case File.exists?(Map.get(x, :path)) do
         false -> File.mkdir_p(Map.get(x, :path))
