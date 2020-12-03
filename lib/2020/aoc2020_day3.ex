@@ -14,7 +14,8 @@ defmodule Aoc2020Day3 do
     #[{x_coef, y_coef}]
     rules = [{3, 1}]
 
-    calculate_trees_by_rules(rules, input) |> hd()
+    calculate_trees_by_rules(rules, input)
+    |> Enum.reduce(1, fn count, acc -> acc * count end)
   end
 
   def part_two(mode) do
