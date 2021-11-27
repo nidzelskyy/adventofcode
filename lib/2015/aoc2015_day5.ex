@@ -17,8 +17,6 @@ defmodule Aoc2015Day5 do
     |> Stream.filter(&filter_by_vowels/1)
     |> Stream.filter(&filter_by_double_char/1)
     |> Stream.filter(&filter_by_bad_combo/1)
-    |> Enum.map(fn {i, l} -> {i, Enum.join(l, "")} end)
-    |> Map.new()
     |> Enum.count()
   end
 
@@ -52,10 +50,8 @@ defmodule Aoc2015Day5 do
 
     Enum.reduce(map, true, fn {index, codepoint}, acc ->
       case codepoint <> Map.get(map, index + 1, "") in ["ab", "cd", "pq", "xy"] do
-        false -> false
-        true ->
-          IO.inspect(codepoint <> Map.get(map, index + 1, ""))
-          acc
+        true -> false
+        false -> acc
       end
     end)
   end
