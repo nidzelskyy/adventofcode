@@ -58,8 +58,4 @@ defmodule Aoc2015Day8 do
 
   def file_name(:test), do: @test_quest_file
   def file_name(_), do: @quest_file
-
-  def replace_double_quote(string) do
-
-  end
 end
