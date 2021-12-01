@@ -20,16 +20,10 @@ defmodule Aoc2021Day1 do
       case prev do
         nil -> {num, counter}
         _ ->
-          counter =
-            if(num > prev) do
-              counter + 1
-            else
-              counter
-            end
+          counter = if(num > prev) do  counter + 1 else counter end
           {num, counter}
       end
     end)
-    |> IO.inspect()
   end
 
   def part_two(mode) do
@@ -42,16 +36,10 @@ defmodule Aoc2021Day1 do
       case prev do
         nil -> {sum, counter}
         _ ->
-          counter =
-            if(sum > prev) do
-              counter + 1
-            else
-              counter
-            end
+          counter = if(sum > prev) do  counter + 1 else counter end
           {sum, counter}
       end
     end)
-    |> IO.inspect()
   end
 
   def parse_file(mode) do
