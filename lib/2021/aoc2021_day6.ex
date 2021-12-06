@@ -8,13 +8,7 @@ defmodule Aoc2021Day6 do
 
   @needle 2021
 
-  #for part one
-#  @total_days 80
-  #for test
-#  @total_days 18
-  # for part two
-  @total_days 256
-
+  #Aoc2021Day6.run(:test)
   def run(mode \\ :test) do
     IO.inspect("First part answer: #{inspect part_one(mode)}")
     IO.inspect("Second part answer: #{inspect part_two(mode)}")
@@ -24,10 +18,12 @@ defmodule Aoc2021Day6 do
   #Aoc2021Day6.part_one(:test)
   #Aoc2021Day6.part_one(:prod)
   def part_one(mode) do
-    parse_file(mode)
-    |> init_agent()
+    total_days = 80
 
-    Enum.each(1..@total_days, fn x -> prepare_day_child(x) end)
+    parse_file(mode)
+    |> init_agent(total_days)
+
+    Enum.each(1..total_days, fn x -> prepare_day_child(total_days, x) end)
 
     result = get_total_sum()
 
@@ -39,10 +35,12 @@ defmodule Aoc2021Day6 do
   #Aoc2021Day6.part_two(:test)
   #Aoc2021Day6.part_two(:prod)
   def part_two(mode) do
-    parse_file(mode)
-    |> init_agent()
+    total_days = 256
 
-    Enum.each(1..@total_days, fn x -> prepare_day_child(x) end)
+    parse_file(mode)
+    |> init_agent(total_days)
+
+    Enum.each(1..total_days, fn x -> prepare_day_child(total_days, x) end)
 
     result = get_total_sum()
 
@@ -66,30 +64,30 @@ defmodule Aoc2021Day6 do
   def file_name(:test), do: @test_quest_file
   def file_name(_), do: @quest_file
 
-  def init_agent(input) do
+  def init_agent(input, total_days) do
     start_count = Enum.count(input)
     Agent.start(fn ->
-         Enum.map(0..@total_days, fn x -> {x, 0} end)
+         Enum.map(0..total_days, fn x -> {x, 0} end)
          |> Map.new()
          |> Map.put(0, start_count)
       end,
       [name: @every_day_child_agent])
 
-    input |> prepare_agent_init()
+    input |> prepare_agent_init(total_days)
   end
 
-  def prepare_agent_init(input) do
+  def prepare_agent_init(input, total_days) do
     Enum.frequencies(input)
     |> Enum.each(fn {num, count} ->
-      prepare_day_child(1, num, count)
+      prepare_day_child(total_days, 1, num, count)
     end)
   end
 
-  #Aoc2021Day6.prepare_day_child(0, 4)
-  def prepare_day_child(day, first_left_days \\ 9, counter \\ nil) do
+  #Aoc2021Day6.prepare_day_child(80, 0, 4)
+  def prepare_day_child(total_days, day, first_left_days \\ 9, counter \\ nil) do
     numbers =
-      Enum.reduce(1..div(@total_days - day, 7), [day + first_left_days], fn x, [last_day | _] = acc -> [last_day + 7] ++ acc end)
-      |> Enum.filter(fn x -> x <= @total_days end)
+      Enum.reduce(1..div(total_days - day, 7), [day + first_left_days], fn x, [last_day | _] = acc -> [last_day + 7] ++ acc end)
+      |> Enum.filter(fn x -> x <= total_days end)
       |> Enum.reverse()
     day_count =
       case counter do
