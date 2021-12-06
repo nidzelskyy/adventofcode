@@ -86,7 +86,7 @@ defmodule Aoc2021Day6 do
   #Aoc2021Day6.prepare_day_child(80, 0, 4)
   def prepare_day_child(total_days, day, first_left_days \\ 9, counter \\ nil) do
     numbers =
-      Enum.reduce(1..div(total_days - day, 7), [day + first_left_days], fn x, [last_day | _] = acc -> [last_day + 7] ++ acc end)
+      Enum.reduce(1..div(total_days - day - first_left_days, 7), [day + first_left_days], fn _x, [last_day | _] = acc -> [last_day + 7] ++ acc end)
       |> Enum.filter(fn x -> x <= total_days end)
       |> Enum.reverse()
     day_count =
