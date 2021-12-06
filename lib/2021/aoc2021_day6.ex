@@ -24,17 +24,12 @@ defmodule Aoc2021Day6 do
   #Aoc2021Day6.part_one(:test)
   #Aoc2021Day6.part_one(:prod)
   def part_one(mode) do
-    input = parse_file(mode)
-    init_empty_agent(Enum.count(input))
-
-    input
-    |> prepare_agent_init()
+    parse_file(mode)
+    |> init_agent()
 
     Enum.each(1..@total_days, fn x -> prepare_day_child(x) end)
 
     result = get_total_sum()
-
-    IO.inspect(get_agent_state())
 
     Agent.stop(@every_day_child_agent)
 
@@ -44,17 +39,12 @@ defmodule Aoc2021Day6 do
   #Aoc2021Day6.part_two(:test)
   #Aoc2021Day6.part_two(:prod)
   def part_two(mode) do
-    input = parse_file(mode)
-    init_empty_agent(Enum.count(input))
-
-    input
-    |> prepare_agent_init()
+    parse_file(mode)
+    |> init_agent()
 
     Enum.each(1..@total_days, fn x -> prepare_day_child(x) end)
 
     result = get_total_sum()
-
-    IO.inspect(get_agent_state())
 
     Agent.stop(@every_day_child_agent)
 
@@ -76,13 +66,16 @@ defmodule Aoc2021Day6 do
   def file_name(:test), do: @test_quest_file
   def file_name(_), do: @quest_file
 
-  def init_empty_agent(start_count) do
+  def init_agent(input) do
+    start_count = Enum.count(input)
     Agent.start(fn ->
          Enum.map(0..@total_days, fn x -> {x, 0} end)
          |> Map.new()
          |> Map.put(0, start_count)
       end,
       [name: @every_day_child_agent])
+
+    input |> prepare_agent_init()
   end
 
   def prepare_agent_init(input) do
